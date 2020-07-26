@@ -1,16 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Layout from '../components/Layout';
-import theme from '../theme/CustomeTheme';
+import Axios from 'axios';
+import config from '../config';
 
 function Copyright() {
     return (
@@ -44,63 +43,80 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function SignIn() {
+export default function SignIn(props) {
     const classes = useStyles();
+    const [creds, setCreds] = useState({
+        phone: '',
+        password: ''
+    })
 
-    const handleLogin=(e)=>{
+    const handleLogin = (e) => {
         e.preventDefault();
+        Axios.post(config.base_url + '/admin/signin', creds)
+            .then(res => {
+                if (res.data.code === 200) {
+                    localStorage.setItem('token', JSON.stringify(res.data.data.token))
+                    props.history.push('/')
+                } else if (res.data.success === false) {
+                    alert(res.data.msg)
+                }
+            })
     }
 
+    const handleOnChange = (e) => {
+        setCreds({
+            ...creds,
+            [e.target.name]: e.target.value
+        })
+    }
     return (
         <Layout page='login'>
-            <ThemeProvider theme={theme}>
-                <Container component="main" maxWidth="xs">
-                    <CssBaseline />
-                    <div className={classes.paper}>
-                        <br/>
-                        <img src='/bepari-logo.png' alt='logo' style={{height: 60}}/>
-                        <form onSubmit={handleLogin} className={classes.form}>
-                            <TextField
-                                variant="outlined"
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="email"
-                                label="Email Address"
-                                name="email"
-                                autoComplete="email"
-                            />
-                            <TextField
-                                variant="outlined"
-                                margin="normal"
-                                required
-                                fullWidth
-                                name="password"
-                                label="Password"
-                                type="password"
-                                id="password"
-                                autoComplete="current-password"
-                            />
-                            <FormControlLabel
-                                control={<Checkbox value="remember" color="primary" />}
-                                label="Remember me"
-                            />
-                            <Button
-                                type="submit"
-                                fullWidth
-                                variant="contained"
-                                color="primary"
-                                className={classes.submit}
-                            >
-                                Sign In
-                            </Button>
-                        </form>
-                    </div>
-                    <Box mt={8}>
-                        <Copyright />
-                    </Box>
-                </Container>
-            </ThemeProvider>
+            <Container component="main" maxWidth="xs">
+                <CssBaseline />
+                <div className={classes.paper}>
+                    <br />
+                    <img src='/admin/bepari-logo.png' alt='logo' style={{ height: 60 }} />
+                    <form onSubmit={handleLogin} className={classes.form}>
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="phone"
+                            value={creds.phone}
+                            onChange={handleOnChange}
+                            label="Phone Number"
+                            name="phone"
+                            autoComplete="phone"
+                        />
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            value={creds.password}
+                            onChange={handleOnChange}
+                            name="password"
+                            label="Password"
+                            type="password"
+                            id="password"
+                            autoComplete="current-password"
+                        />
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            className={classes.submit}
+                        >
+                            Sign In
+                        </Button>
+                    </form>
+                </div>
+                <Box mt={8}>
+                    <Copyright />
+                </Box>
+            </Container>
         </Layout>
     );
 }
