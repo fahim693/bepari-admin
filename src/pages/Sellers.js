@@ -20,7 +20,7 @@ const useStyles = makeStyles({
     },
 });
 
-export default function Products() {
+export default function Sellers() {
     const classes = useStyles();
     const [data, setData] = useState([])
     const [page, setPage] = useState(0);
@@ -34,13 +34,12 @@ export default function Products() {
 
     useEffect(() => {
         const func = () => {
-            Axios.get(config.base_url + '/product/livestock?offset=admin', {
+            Axios.get(config.base_url + '/admin/sellers', {
                 headers: {
                     Authorization: JSON.parse(localStorage.getItem('token'))
                 }
             }).then(res => {
                 if (res.data.success) {
-                    console.log(res.data.data);
                     setData(res.data.data)
                 } else {
                     alert(res.data.msg)
@@ -48,7 +47,7 @@ export default function Products() {
             })
         }
         func();
-    }, [swalert.show])
+    }, [swalert.show, confirmAlert])
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -60,7 +59,7 @@ export default function Products() {
     };
 
     const handleSold = () => {
-        Axios.post(config.base_url + '/admin/force-sell', {
+        Axios.post(config.base_url + '/admin/approve-seller', {
             id: localStorage.getItem('id')
         }, {
             headers: {
@@ -83,7 +82,7 @@ export default function Products() {
     return (
         <Layout>
             <Typography variant='h4' component="h2">
-                Products
+                Sellers
             </Typography>
             <br />
             <TableContainer component={Paper}>
@@ -91,9 +90,9 @@ export default function Products() {
                     <TableHead>
                         <TableRow>
                             <TableCell>Name</TableCell>
-                            <TableCell>Livestock Type</TableCell>
-                            <TableCell>Selling Price</TableCell>
-                            <TableCell>Status</TableCell>
+                            <TableCell>Phone</TableCell>
+                            <TableCell>Email</TableCell>
+                            <TableCell>Approval</TableCell>
                             <TableCell>Action</TableCell>
                         </TableRow>
                     </TableHead>
@@ -101,36 +100,36 @@ export default function Products() {
                         {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => (
                             <TableRow key={idx}>
                                 <TableCell component="th" scope="row">
-                                    {row.name}
+                                    {row.businessName}
+                                </TableCell>
+                                <TableCell>
+                                    {row.contactNumber}
+                                </TableCell>
+                                <TableCell>
+                                    {row.email}
                                 </TableCell>
                                 <TableCell>
                                     {
-                                        row.livestockType === 0 ? 'Cow' : 'Goat'
-                                    }
-                                </TableCell>
-                                <TableCell>{row.sellingPrice}</TableCell>
-                                <TableCell>
-                                    {
-                                        row.isOrdered === 0 ?
-                                            <div style={{ color: '#29a81b' }}>
-                                                Available
-                                        </div> :
+                                        row.isVerified === false ?
                                             <div style={{ color: '#bf1f1f' }}>
-                                                Sold
-                                        </div>
+                                                Pending
+                                            </div> :
+                                            <div style={{ color: '#29a81b' }}>
+                                                Approved
+                                            </div>
                                     }
                                 </TableCell>
                                 <TableCell>
                                     {
-                                        row.isOrdered === 0 ?
+                                        row.isVerified === false ?
                                             <Button onClick={() => {
                                                 localStorage.setItem('id', row.id)
                                                 setConfirmAlert(true)
                                             }} color='primary' variant='contained'>
-                                                Sold
+                                                Approve
                                             </Button> :
                                             <Button color='primary' disabled variant='contained'>
-                                                Sold
+                                                Approved
                                             </Button>
                                     }
 
@@ -167,6 +166,6 @@ export default function Products() {
                 type={swalert.type}
                 onConfirm={() => setSwalert({ show: false })}
             />
-        </Layout>
+        </Layout >
     );
 }

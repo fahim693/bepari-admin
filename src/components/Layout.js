@@ -102,7 +102,7 @@ const menu = [
   {
     name: 'Sellers',
     icon: <AccountBoxRounded />,
-    url: ''
+    url: '/sellers'
   },
   {
     name: 'Customers',
