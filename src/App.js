@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import PrivateRoute from './components/PrivateRoute';
 import Products from './pages/Products';
 import Sellers from './pages/Sellers';
+import Orders from './pages/Orders';
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
         <Route exact path="/login" component={Login} />
         <PrivateRoute exact path="/products" component={Products} />
         <PrivateRoute exact path="/sellers" component={Sellers} />
+        <PrivateRoute exact path="/orders" component={Orders} />
         <Route path="**" render={() => <Redirect to={{ pathname: "/" }} />} />
       </Switch>
     </Router>

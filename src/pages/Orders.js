@@ -20,7 +20,7 @@ const useStyles = makeStyles({
     },
 });
 
-export default function Products() {
+export default function Orders(props) {
     const classes = useStyles();
     const [data, setData] = useState([])
     const [page, setPage] = useState(0);
@@ -34,21 +34,21 @@ export default function Products() {
 
     useEffect(() => {
         const func = () => {
-            Axios.get(config.base_url + '/product/livestock?offset=admin', {
+            Axios.get(config.base_url + '/admin/orders', {
                 headers: {
                     Authorization: JSON.parse(localStorage.getItem('token'))
                 }
             }).then(res => {
                 if (res.data.success) {
-                    console.log(res.data.data);
                     setData(res.data.data)
-                } else {
+                } else if (!res.data.success && res.data.code === 401) {
                     alert(res.data.msg)
+                    props.history.push('/login')
                 }
             })
         }
         func();
-    }, [swalert.show])
+    }, [props.history,swalert.show, confirmAlert])
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -60,7 +60,7 @@ export default function Products() {
     };
 
     const handleSold = () => {
-        Axios.post(config.base_url + '/admin/force-sell', {
+        Axios.post(config.base_url + '/admin/confirm-order', {
             id: localStorage.getItem('id')
         }, {
             headers: {
@@ -83,17 +83,20 @@ export default function Products() {
     return (
         <Layout>
             <Typography variant='h4' component="h2">
-                Products
+                Orders
             </Typography>
             <br />
             <TableContainer component={Paper}>
                 <Table className={classes.table} aria-label="simple table">
                     <TableHead>
                         <TableRow>
+                            <TableCell>Order Id</TableCell>
                             <TableCell>Name</TableCell>
-                            <TableCell>Livestock Type</TableCell>
-                            <TableCell>Selling Price</TableCell>
-                            <TableCell>Status</TableCell>
+                            <TableCell>Phone</TableCell>
+                            <TableCell>Address</TableCell>
+                            <TableCell>Total Amount</TableCell>
+                            <TableCell>Advance Amount</TableCell>
+                            <TableCell>Delivery Status</TableCell>
                             <TableCell>Action</TableCell>
                         </TableRow>
                     </TableHead>
@@ -101,39 +104,49 @@ export default function Products() {
                         {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => (
                             <TableRow key={idx}>
                                 <TableCell component="th" scope="row">
-                                    {row.name}
+                                    {row.orderId}
+                                </TableCell>
+                                <TableCell>
+                                    {row.customerName}
+                                </TableCell>
+                                <TableCell>
+                                    {row.phone}
+                                </TableCell>
+                                <TableCell>
+                                    {row.address1},{row.zone}
+                                </TableCell>
+                                <TableCell>
+                                    {row.grandTotal}
+                                </TableCell>
+                                <TableCell>
+                                    {row.advanceAmount}
                                 </TableCell>
                                 <TableCell>
                                     {
-                                        row.livestockType === 0 ? 'Cow' : 'Goat'
+                                        row.deliveryStatus === 0 ?
+                                            <span style={{ fontWeight: 'bold', color: '#FFA000' }}>Ordered</span> :
+                                            row.deliveryStatus === 1 ?
+                                                <span style={{ fontWeight: 'bold', color: '#2BBBAD' }}>Confirmed</span> :
+                                                row.deliveryStatus === 2 ?
+                                                    <span style={{ fontWeight: 'bold', color: '#33b5e5' }}>Shipped</span> :
+                                                    row.deliveryStatus === 3 ?
+                                                        <span style={{ fontWeight: 'bold', color: '#00695c' }}>Delivered</span> : ''
+
                                     }
                                 </TableCell>
-                                <TableCell>{row.sellingPrice}</TableCell>
                                 <TableCell>
                                     {
-                                        row.isOrdered === 0 ?
-                                            <span style={{ fontWeight: 'bold', color: '#29a81b' }}>
-                                                Available
-                                            </span> :
-                                            <span style={{ fontWeight: 'bold', color: '#bf1f1f' }}>
-                                                Sold
-                                            </span>
-                                    }
-                                </TableCell>
-                                <TableCell>
-                                    {
-                                        row.isOrdered === 0 ?
+                                        !row.paymentStatus ?
                                             <Button onClick={() => {
-                                                localStorage.setItem('id', row.id)
+                                                localStorage.setItem('id', row.orderId)
                                                 setConfirmAlert(true)
                                             }} color='primary' variant='contained'>
-                                                Sold
+                                                Paid
                                             </Button> :
                                             <Button color='primary' disabled variant='contained'>
-                                                Sold
+                                                Paid
                                             </Button>
                                     }
-
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -167,6 +180,6 @@ export default function Products() {
                 type={swalert.type}
                 onConfirm={() => setSwalert({ show: false })}
             />
-        </Layout>
+        </Layout >
     );
 }

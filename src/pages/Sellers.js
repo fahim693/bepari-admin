@@ -111,12 +111,12 @@ export default function Sellers() {
                                 <TableCell>
                                     {
                                         row.isVerified === false ?
-                                            <div style={{ color: '#bf1f1f' }}>
+                                            <span style={{ fontWeight: 'bold', color: '#bf1f1f' }}>
                                                 Pending
-                                            </div> :
-                                            <div style={{ color: '#29a81b' }}>
+                                            </span> :
+                                            <span style={{ fontWeight: 'bold', color: '#29a81b' }}>
                                                 Approved
-                                            </div>
+                                            </span>
                                     }
                                 </TableCell>
                                 <TableCell>

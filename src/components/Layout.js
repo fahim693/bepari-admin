@@ -97,7 +97,7 @@ const menu = [
   {
     name: 'Orders',
     icon: <ListAltRounded />,
-    url: ''
+    url: '/orders'
   },
   {
     name: 'Sellers',
