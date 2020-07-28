@@ -15,8 +15,8 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
+import { ShoppingBasketRounded, ListAltRounded, SupervisorAccountRounded, AccountBoxRounded, ExitToAppRounded, DashboardRounded } from '@material-ui/icons';
+import { withRouter } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -83,7 +83,35 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Layout(props) {
+const menu = [
+  {
+    name: 'Dashboard',
+    icon: <DashboardRounded />,
+    url: '/'
+  },
+  {
+    name: 'Products',
+    icon: <ShoppingBasketRounded />,
+    url: '/products'
+  },
+  {
+    name: 'Orders',
+    icon: <ListAltRounded />,
+    url: '/orders'
+  },
+  {
+    name: 'Sellers',
+    icon: <AccountBoxRounded />,
+    url: '/sellers'
+  },
+  {
+    name: 'Customers',
+    icon: <SupervisorAccountRounded />,
+    url: ''
+  },
+]
+
+const Layout = (props) => {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -94,6 +122,11 @@ export default function Layout(props) {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    props.history.push('/login')
+  }
 
   return (
     <div className={classes.root}>
@@ -140,28 +173,26 @@ export default function Layout(props) {
             }}
           >
             <div className={classes.toolbar}>
-              <img src='/bepari-logo.png' style={{ height: 45, marginLeft: 12 }} alt='logo' />
+              <img src='/admin/bepari-logo.png' style={{ height: 45, marginLeft: 12 }} alt='logo' />
               <IconButton onClick={handleDrawerClose}>
                 {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
               </IconButton>
             </div>
             <Divider />
             <List>
-              {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                <ListItem button key={text}>
-                  <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                  <ListItemText primary={text} />
+              {menu.map((obj, index) => (
+                <ListItem onClick={() => props.history.push(obj.url)} button key={obj.name}>
+                  <ListItemIcon>{obj.icon}</ListItemIcon>
+                  <ListItemText primary={obj.name} />
                 </ListItem>
               ))}
             </List>
             <Divider />
             <List>
-              {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                <ListItem button key={text}>
-                  <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                  <ListItemText primary={text} />
-                </ListItem>
-              ))}
+              <ListItem onClick={handleLogout} button >
+                <ListItemIcon>{<ExitToAppRounded />}</ListItemIcon>
+                <ListItemText primary={'Logout'} />
+              </ListItem>
             </List>
           </Drawer> : ''
 
@@ -169,8 +200,10 @@ export default function Layout(props) {
 
       <main className={classes.content}>
         <div className={classes.toolbar} />
-        {props.children}
+          {props.children}
       </main>
     </div>
   );
 }
+
+export default withRouter(Layout)
