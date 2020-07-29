@@ -48,7 +48,7 @@ export default function Orders(props) {
             })
         }
         func();
-    }, [props.history,swalert.show, confirmAlert])
+    }, [props.history, swalert.show, confirmAlert])
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -82,9 +82,12 @@ export default function Orders(props) {
 
     return (
         <Layout>
-            <Typography variant='h4' component="h2">
-                Orders
-            </Typography>
+            <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                <Typography variant='h4' component='h1'>
+                    Orders
+                </Typography>
+                <Button onClick={()=> props.history.push('/create-order')} color='primary' variant='contained'>Create Order</Button>
+            </div>
             <br />
             <TableContainer component={Paper}>
                 <Table className={classes.table} aria-label="simple table">
